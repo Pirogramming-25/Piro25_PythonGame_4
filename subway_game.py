@@ -106,7 +106,7 @@ class SubwayGame:
         return True
 
     def npc_move(self):
-        """NPC의 턴. (역이름, 정답여부) 반환"""
+        """NPC의 턴 """
         options = [s for s in LINES[self.line] if s not in self.used]
 
         if random.random() < MISTAKE_PROB or not options:
