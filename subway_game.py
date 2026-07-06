@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-"""지하철 게임 - 나 + 랜덤 NPC와 함께하는 술게임 콘솔 버전"""
+# 지하철 게임 
 
 import random
 import select
@@ -58,19 +57,20 @@ LINES = {
              "청라국제도시","영종","운서","공항화물청사","인천공항1터미널","인천공항2터미널"],
 }
 
-NPCS = ["영희", "철수", "미나", "세모"]
+PLAYER_POOL = ["민서", "예지", "아린", "다희", "피로"]
 TIMEOUT = 10          # 내 차례 제한 시간(초)
-MISTAKE_PROB = 0.1     # NPC가 일부러 틀린 역을 말할 확률
+MISTAKE_PROB = 0.1    # NPC가 일부러 틀린 역을 말할 확률
 
 
 class SubwayGame:
-    def __init__(self):
-        self.my_name = ""
+    def __init__(self, name, players):
+        self.name = name
+        self.players = players  # 이름 포함 전체 참가자 리스트 (main에서 랜덤으로 정해서 넘겨줌)
         self.line = ""
         self.used = set()
 
     def wait_for_input(self, prompt):
-        """TIMEOUT초 안에 입력이 없으면 None 반환"""
+        # TIMEOUT초 안에 입력이 없으면 None 반환
         print(prompt, end="", flush=True)
         ready, _, _ = select.select([sys.stdin], [], [], TIMEOUT)
         if not ready:
@@ -79,7 +79,7 @@ class SubwayGame:
         return sys.stdin.readline().strip()
 
     def try_answer(self, raw):
-        """역 이름(또는 환승)을 검사. 맞으면 상태 갱신 후 True, 틀리면 이유 출력 후 False"""
+        # 역 이름(또는 환승)을 검사. 맞으면 상태 갱신 후 True, 틀리면 이유 출력 후 False
         if "환승" in raw:
             parts = raw.replace(",", " ").split()
             if len(parts) >= 2:
@@ -106,7 +106,7 @@ class SubwayGame:
         return True
 
     def npc_move(self):
-        """NPC의 턴 """
+        # NPC의 턴
         options = [s for s in LINES[self.line] if s not in self.used]
 
         if random.random() < MISTAKE_PROB or not options:
@@ -124,17 +124,14 @@ class SubwayGame:
         print("  지~하철! 지하철 지~하철! 지하철! 🚇")
         print("=" * 40)
 
-        self.my_name = input("\n당신의 이름을 입력해주세요: ").strip() or "나"
-
-        npcs = random.sample(NPCS, random.randint(1, 3))
-        players = [self.my_name] + npcs
+        players = self.players
         print(f"\n🎲 참가자: {', '.join(players)}")
         time.sleep(2)
 
         caller = random.choice(players)
         print(f"🎤 호선/역을 정할 사람: {caller}")
 
-        if caller == self.my_name:
+        if caller == self.name:
             while self.line not in LINES:
                 self.line = input("호선 입력 (예: 2호선): ").strip()
             start = ""
@@ -160,7 +157,7 @@ class SubwayGame:
         while True:
             player = order[turn % len(order)]
 
-            if player == self.my_name:
+            if player == self.name:
                 raw = self.wait_for_input(f"[{self.line}] {player}(나)님의 차례 (10초!) ▶ ")
                 if raw is None:
                     print(f"\n💥 시간 초과! {player}님, 술 한 잔 원샷! 🍺")
@@ -182,9 +179,18 @@ class SubwayGame:
             turn += 1
 
 
+# main 실행을 위한 함수
+def play_game(name):
+    npcs = random.sample(PLAYER_POOL, random.randint(1, 3))
+    players = [name] + npcs
+    SubwayGame(name, players).run()
+ 
+ 
+# 테스트 용 
 if __name__ == "__main__":
+    name = input("당신의 이름을 입력해주세요: ").strip() or "나"
     try:
-        SubwayGame().run()
+        play_game(name)
     except (KeyboardInterrupt, EOFError):
         print("\n게임을 중단했습니다.")
         sys.exit(0)
