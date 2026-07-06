@@ -53,4 +53,4 @@ def play_baskin_game():
 
 # 단독 테스트용
 if __name__ == "__main__":
-    play_game()
+    play_baskin_game()

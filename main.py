@@ -12,7 +12,7 @@ except ImportError:
     play_subway_game = None
 
 try:
-    from baskin_game import play_game as play_baskin_game
+    from baskin_game import play_baskin_game
 except ImportError:
     play_baskin_game = None
 
@@ -197,6 +197,8 @@ def select_game(player):
 
 
 def run_game(choice, players, current_player):
+    user_player = next((player for player in players if player["is_user"]), current_player)
+
     if choice == 1:
         if len(players) < 4:
             print_line()
@@ -217,7 +219,7 @@ def run_game(choice, players, current_player):
         if play_subway_game is None:
             print("지하철게임 파일을 찾을 수 없습니다.")
         else:
-            play_subway_game()
+            play_subway_game(user_player["name"], current_player["name"])
 
     elif choice == 4:
         if play_baskin_game is None:
