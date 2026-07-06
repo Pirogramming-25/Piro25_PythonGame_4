@@ -5,6 +5,7 @@ import signal
 
 TIME_LIMIT = 5
 MISTAKE_RATE = 0.25
+CAN_USE_ALARM = hasattr(signal, "SIGALRM") and hasattr(signal, "alarm")
 
 
 class TimeoutException(Exception):
@@ -25,6 +26,10 @@ def slow_print(text, delay=0.5):
 
 
 def timed_input(message, limit):
+    if not CAN_USE_ALARM:
+        print("현재 운영체제에서는 시간 제한 입력을 지원하지 않아 일반 입력으로 진행합니다.")
+        return input(message)
+
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(limit)
 
