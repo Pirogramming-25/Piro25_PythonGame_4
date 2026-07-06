@@ -213,19 +213,29 @@ def run_game(choice, players, current_player):
         if play_nunchi_game is None:
             print("눈치게임 파일을 찾을 수 없습니다.")
         else:
-            play_nunchi_game()
+            play_nunchi_game(players, current_player)
 
     elif choice == 3:
         if play_subway_game is None:
             print("지하철게임 파일을 찾을 수 없습니다.")
         else:
-            play_subway_game(user_player["name"], current_player["name"])
+            player_names = [player["name"] for player in players]
+            loser_name = play_subway_game(
+                user_player["name"],
+                current_player["name"],
+                player_names
+            )
+            if loser_name is not None:
+                for player in players:
+                    if player["name"] == loser_name:
+                        player["drink"] += 1
+                        break
 
     elif choice == 4:
         if play_baskin_game is None:
             print("베스킨라빈스31게임 파일을 찾을 수 없습니다.")
         else:
-            play_baskin_game()
+            play_baskin_game(players, current_player)
 
 
 def check_game_over(players):

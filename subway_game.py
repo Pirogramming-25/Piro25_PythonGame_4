@@ -162,30 +162,43 @@ class SubwayGame:
                 raw = self.wait_for_input(f"[{self.line}] {player}(나)님의 차례 (10초!) ▶ ")
                 if raw is None:
                     print(f"\n💥 시간 초과! {player}님, 술 한 잔 원샷! 🍺")
-                    return
+                    return player
                 if raw in ("종료", "quit", "exit"):
                     print("게임을 종료합니다.")
-                    return
+                    return None
                 if not self.try_answer(raw):
                     print(f"💥 GAME OVER! {player}님, 술 한 잔 원샷! 🍺")
-                    return
+                    return player
             else:
                 time.sleep(random.uniform(1, TIMEOUT))
                 station, correct = self.npc_move()
                 print(f"🗣️ {player}: \"{station}\"")
                 if not correct:
                     print(f"💥 GAME OVER! {player}님, 술 한 잔 원샷! 🍺")
-                    return
+                    return player
  
             turn += 1
  
  
-def play_game(name, current_player=None):
-    npcs = random.sample(PLAYER_POOL, random.randint(1, 3))
-    players = [name] + npcs
+def play_game(name, current_player=None, candidate_names=None):
     if current_player is None:
         current_player = name
-    SubwayGame(name, players, current_player).run()
+
+    if candidate_names is None:
+        candidate_names = PLAYER_POOL
+
+    players = []
+    for candidate in candidate_names:
+        if candidate not in players:
+            players.append(candidate)
+
+    if name not in players:
+        players.insert(0, name)
+
+    if current_player not in players:
+        players.append(current_player)
+
+    return SubwayGame(name, players, current_player).run()
  
  
 if __name__ == "__main__":

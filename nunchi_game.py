@@ -1,5 +1,6 @@
 import random
 
+
 def get_player_count():
     while True:
         try:
@@ -10,6 +11,7 @@ def get_player_count():
                 print("1~4 사이의 숫자를 입력해주세요.")
         except ValueError:
             print("숫자를 입력해주세요.")
+
 
 def get_user_choice():
     while True:
@@ -22,12 +24,38 @@ def get_user_choice():
         except ValueError:
             print("숫자를 입력해주세요.")
 
-def play_game():
+
+def make_default_players(computer_count):
+    players = [{"name": "나", "drink": 0, "is_user": True}]
+
+    for i in range(1, computer_count + 1):
+        players.append({
+            "name": f"컴퓨터{i}",
+            "drink": 0,
+            "is_user": False
+        })
+
+    return players
+
+
+def play_game(players=None, current_player=None):
     print("=" * 40)
     print("        👀 눈치게임을 시작합니다!")
     print("=" * 40)
 
-    computer_count = get_player_count()
+    if players is None:
+        computer_count = get_player_count()
+        players = make_default_players(computer_count)
+
+    if current_player is None:
+        current_player = players[0]
+
+    ordered_players = [current_player]
+    for player in players:
+        if player["name"] != current_player["name"]:
+            ordered_players.append(player)
+
+    print("참가자:", ", ".join(player["name"] for player in ordered_players))
 
     total_drinks = 0
     round_num = 1
@@ -37,10 +65,11 @@ def play_game():
 
         # 참가자 숫자 선택
         choices = {}
-        choices["나"] = get_user_choice()
-
-        for i in range(1, computer_count + 1):
-            choices[f"컴퓨터{i}"] = random.randint(1, 5)
+        for player in ordered_players:
+            if player.get("is_user"):
+                choices[player["name"]] = get_user_choice()
+            else:
+                choices[player["name"]] = random.randint(1, 5)
 
         # 결과 출력
         print("\n📋 선택 결과:")
@@ -48,14 +77,26 @@ def play_game():
             print(f"  {name}: {num}")
 
         # 중복 확인
-        user_num = choices["나"]
-        others = [v for k, v in choices.items() if k != "나"]
+        duplicated_numbers = {
+            num for num in choices.values()
+            if list(choices.values()).count(num) > 1
+        }
 
-        if user_num in others:
-            print("\n😵 다른 참가자와 숫자가 겹쳤습니다! 술 1잔 마시세요!")
-            total_drinks += 1
+        if duplicated_numbers:
+            loser_names = [
+                name for name, num in choices.items()
+                if num in duplicated_numbers
+            ]
+            print("\n😵 숫자가 겹쳤습니다! 겹친 사람은 술 1잔!")
+            print("벌칙:", ", ".join(loser_names))
+
+            for player in players:
+                if player["name"] in loser_names:
+                    player["drink"] += 1
+                    if player.get("is_user"):
+                        total_drinks += 1
         else:
-            print("\n🎉 성공! 혼자 다른 숫자를 선택했습니다!")
+            print("\n🎉 성공! 아무도 숫자가 겹치지 않았습니다!")
 
         print(f"🍺 현재까지 마신 술: {total_drinks}잔")
 
@@ -75,6 +116,7 @@ def play_game():
     else:
         print("  😵 오늘 많이 마셨네요...")
     print("=" * 40)
+
 
 if __name__ == "__main__":
 

@@ -30,26 +30,46 @@ def play_turn(name, cur, is_human):
     return called, called[-1]
 
 
-def play_baskin_game():
-    """main.py의 run_game에서 인자 없이 호출됨.
-    나 vs 컴퓨터 1:1로 베스킨라빈스31 진행."""
+def play_baskin_game(players=None, current_player=None):
+    """main.py의 참가자 목록을 받아 베스킨라빈스31 진행."""
     print("=" * 40)
     print("      🍦 베스킨라빈스31 게임 시작! 🍦")
     print("31을 부르는 사람이 원샷! 1~3개씩 이어서 세요.")
     print("=" * 40)
 
-    players = [("나", True), ("컴퓨터", False)]
+    if players is None:
+        players = [
+            {"name": "나", "drink": 0, "is_user": True},
+            {"name": "컴퓨터", "drink": 0, "is_user": False}
+        ]
+
+    if current_player is None:
+        current_player = players[0]
+
+    start_index = 0
+    for index, player in enumerate(players):
+        if player["name"] == current_player["name"]:
+            start_index = index
+            break
+
+    ordered_players = players[start_index:] + players[:start_index]
+    print("참가자:", ", ".join(player["name"] for player in ordered_players))
+
     cur, idx = 0, 0
 
     while cur < 31:
-        name, is_human = players[idx]
-        called, cur = play_turn(name, cur, is_human)
+        player = ordered_players[idx]
+        called, cur = play_turn(player["name"], cur, player.get("is_user", False))
         if 31 in called:
             print("-" * 40)
-            print(f"💀 {name}(이)가 31을 불렀습니다! → {name} 원샷! 🍺")
+            player["drink"] += 1
+            print(
+                f"💀 {player['name']}(이)가 31을 불렀습니다! "
+                f"→ {player['name']} 원샷! 🍺"
+            )
             print("-" * 40)
-            return name  # main은 리턴값을 안 쓰지만, 있어도 무방
-        idx = (idx + 1) % len(players)  # 다음 사람으로
+            return player["name"]
+        idx = (idx + 1) % len(ordered_players)  # 다음 사람으로
 
 # 단독 테스트용
 if __name__ == "__main__":
