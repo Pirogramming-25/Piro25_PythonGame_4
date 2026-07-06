@@ -51,7 +51,6 @@ def play_game():
             return name  # main은 리턴값을 안 쓰지만, 있어도 무방
         idx = (idx + 1) % len(players)  # 다음 사람으로
 
-
 # 단독 테스트용
 if __name__ == "__main__":
     play_game()
