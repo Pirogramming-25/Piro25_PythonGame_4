@@ -76,4 +76,6 @@ def play_game():
         print("  😵 오늘 많이 마셨네요...")
     print("=" * 40)
 
-play_game()
+if __name__ == "__main__":
+
+    play_game()
