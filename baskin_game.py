@@ -30,7 +30,7 @@ def play_turn(name, cur, is_human):
     return called, called[-1]
 
 
-def play_game():
+def play_baskin_game():
     """main.py의 run_game에서 인자 없이 호출됨.
     나 vs 컴퓨터 1:1로 베스킨라빈스31 진행."""
     print("=" * 40)
@@ -50,7 +50,6 @@ def play_game():
             print("-" * 40)
             return name  # main은 리턴값을 안 쓰지만, 있어도 무방
         idx = (idx + 1) % len(players)  # 다음 사람으로
-
 
 # 단독 테스트용
 if __name__ == "__main__":
